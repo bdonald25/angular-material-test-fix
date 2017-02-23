@@ -14153,7 +14153,9 @@ var MdMenu = (function () {
         });
     };
     MdMenu.prototype.ngOnDestroy = function () {
-        this._tabSubscription.unsubscribe();
+        if (this._tabSubscription !== undefined && this._tabSubscription !== null) {
+            this._tabSubscription.unsubscribe();
+        }
     };
     Object.defineProperty(MdMenu.prototype, "classList", {
         /**

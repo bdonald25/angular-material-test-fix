@@ -12,7 +12,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, ViewChild, trigger, state, style, transition, animate, NgZone } from '@angular/core';
+import { Component, ViewChild, trigger, state, style, transition, animate, NgZone, Renderer, ElementRef } from '@angular/core';
 import { BasePortalHost, PortalHostDirective } from '../core';
 import { MdSnackBarContentAlreadyAttached } from './snack-bar-errors';
 import { Subject } from 'rxjs/Subject';
@@ -26,9 +26,11 @@ export var HIDE_ANIMATION = '195ms cubic-bezier(0.0,0.0,0.2,1)';
  */
 export var MdSnackBarContainer = (function (_super) {
     __extends(MdSnackBarContainer, _super);
-    function MdSnackBarContainer(_ngZone) {
+    function MdSnackBarContainer(_ngZone, _renderer, _elementRef) {
         _super.call(this);
         this._ngZone = _ngZone;
+        this._renderer = _renderer;
+        this._elementRef = _elementRef;
         /** Subject for notifying that the snack bar has exited from view. */
         this.onExit = new Subject();
         /** Subject for notifying that the snack bar has finished entering the view. */
@@ -41,6 +43,14 @@ export var MdSnackBarContainer = (function (_super) {
         if (this._portalHost.hasAttached()) {
             throw new MdSnackBarContentAlreadyAttached();
         }
+        if (this.snackBarConfig.extraClasses) {
+            // Not the most efficient way of adding classes, but the renderer doesn't allow us
+            // to pass in an array or a space-separated list.
+            for (var _i = 0, _a = this.snackBarConfig.extraClasses; _i < _a.length; _i++) {
+                var cssClass = _a[_i];
+                this._renderer.setElementClass(this._elementRef.nativeElement, cssClass, true);
+            }
+        }
         return this._portalHost.attachComponentPortal(portal);
     };
     /** Attach a template portal as content to this snack bar container. */
@@ -51,10 +61,7 @@ export var MdSnackBarContainer = (function (_super) {
     MdSnackBarContainer.prototype.onAnimationEnd = function (event) {
         var _this = this;
         if (event.toState === 'void' || event.toState === 'complete') {
-            this._ngZone.run(function () {
-                _this.onExit.next();
-                _this.onExit.complete();
-            });
+            this._completeExit();
         }
         if (event.toState === 'visible') {
             this._ngZone.run(function () {
@@ -85,9 +92,14 @@ export var MdSnackBarContainer = (function (_super) {
      * Makes sure the exit callbacks have been invoked when the element is destroyed.
      */
     MdSnackBarContainer.prototype.ngOnDestroy = function () {
+        this._completeExit();
+    };
+    /**
+     * Waits for the zone to settle before removing the element. Helps prevent
+     * errors where we end up removing an element which is in the middle of an animation.
+     */
+    MdSnackBarContainer.prototype._completeExit = function () {
         var _this = this;
-        // Wait for the zone to settle before removing the element. Helps prevent
-        // errors where we end up removing an element which is in the middle of an animation.
         this._ngZone.onMicrotaskEmpty.first().subscribe(function () {
             _this.onExit.next();
             _this.onExit.complete();
@@ -99,8 +111,8 @@ export var MdSnackBarContainer = (function (_super) {
     ], MdSnackBarContainer.prototype, "_portalHost", void 0);
     MdSnackBarContainer = __decorate([
         Component({selector: 'snack-bar-container',
-            template: "<template cdkPortalHost></template>",
-            styles: [":host{box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px 0 rgba(0,0,0,.14),0 1px 18px 0 rgba(0,0,0,.12);background:#323232;border-radius:2px;box-sizing:content-box;display:block;height:20px;max-width:568px;min-width:288px;overflow:hidden;padding:14px 24px;transform:translateY(100%)}@media screen and (-ms-high-contrast:active){:host{border:1px solid}}"],
+            template: "<template cdkPortalHost></template> ",
+            styles: ["/** * Applies styles for users in high contrast mode. Note that this only applies * to Microsoft browsers. Chrome can be included by checking for the `html[hc]` * attribute, however Chrome handles high contrast differently. */ :host { box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12); background: #323232; border-radius: 2px; box-sizing: content-box; display: block; height: 20px; max-width: 568px; min-width: 288px; overflow: hidden; padding: 14px 24px; transform: translateY(100%); } @media screen and (-ms-high-contrast: active) { :host { border: solid 1px; } } /*# sourceMappingURL=snack-bar-container.css.map */ "],
             host: {
                 'role': 'alert',
                 '[@state]': 'animationState',
@@ -116,9 +128,8 @@ export var MdSnackBarContainer = (function (_super) {
                 ])
             ],
         }), 
-        __metadata('design:paramtypes', [NgZone])
+        __metadata('design:paramtypes', [NgZone, Renderer, ElementRef])
     ], MdSnackBarContainer);
     return MdSnackBarContainer;
 }(BasePortalHost));
-
 //# sourceMappingURL=snack-bar-container.js.map

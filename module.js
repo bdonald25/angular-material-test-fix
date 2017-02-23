@@ -8,7 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { NgModule } from '@angular/core';
-import { MdRippleModule, RtlModule, ObserveContentModule, PortalModule, OverlayModule, A11yModule, ProjectionModule, DefaultStyleCompatibilityModeModule } from './core/index';
+import { MdRippleModule, RtlModule, ObserveContentModule, PortalModule, OverlayModule, A11yModule, ProjectionModule, CompatibilityModule } from './core/index';
 import { MdButtonToggleModule } from './button-toggle/index';
 import { MdButtonModule } from './button/index';
 import { MdCheckboxModule } from './checkbox/index';
@@ -25,7 +25,7 @@ import { MdIconModule } from './icon/index';
 import { MdProgressSpinnerModule } from './progress-spinner/index';
 import { MdProgressBarModule } from './progress-bar/index';
 import { MdInputModule } from './input/index';
-import { MdSnackBarModule } from './snack-bar/snack-bar';
+import { MdSnackBarModule } from './snack-bar/index';
 import { MdTabsModule } from './tabs/index';
 import { MdToolbarModule } from './toolbar/index';
 import { MdTooltipModule } from './tooltip/index';
@@ -33,6 +33,7 @@ import { MdMenuModule } from './menu/index';
 import { MdDialogModule } from './dialog/index';
 import { PlatformModule } from './core/platform/index';
 import { MdAutocompleteModule } from './autocomplete/index';
+import { StyleModule } from './core/style/index';
 var MATERIAL_MODULES = [
     MdAutocompleteModule,
     MdButtonModule,
@@ -61,10 +62,11 @@ var MATERIAL_MODULES = [
     OverlayModule,
     PortalModule,
     RtlModule,
+    StyleModule,
     A11yModule,
     PlatformModule,
     ProjectionModule,
-    DefaultStyleCompatibilityModeModule,
+    CompatibilityModule,
     ObserveContentModule
 ];
 export var MaterialRootModule = (function () {
@@ -105,7 +107,7 @@ export var MaterialRootModule = (function () {
                 MdTooltipModule.forRoot(),
                 PlatformModule.forRoot(),
                 OverlayModule.forRoot(),
-                DefaultStyleCompatibilityModeModule.forRoot(),
+                CompatibilityModule.forRoot(),
             ],
             exports: MATERIAL_MODULES,
         }), 
@@ -116,6 +118,7 @@ export var MaterialRootModule = (function () {
 export var MaterialModule = (function () {
     function MaterialModule() {
     }
+    /** @deprecated */
     MaterialModule.forRoot = function () {
         return { ngModule: MaterialRootModule };
     };
@@ -128,5 +131,4 @@ export var MaterialModule = (function () {
     ], MaterialModule);
     return MaterialModule;
 }());
-
 //# sourceMappingURL=module.js.map

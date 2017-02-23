@@ -534,7 +534,10 @@ var ScrollDispatcher = (function () {
      * @param scrollable Scrollable instance to be deregistered.
      */
     ScrollDispatcher.prototype.deregister = function (scrollable) {
-        this.scrollableReferences.get(scrollable).unsubscribe();
+        if (this.scrollableReferences.get(scrollable) !== undefined
+            && !this.scrollableReferences.get(scrollable).closed) {
+            this.scrollableReferences.get(scrollable).unsubscribe();
+        }
         this.scrollableReferences.delete(scrollable);
     };
     /**
